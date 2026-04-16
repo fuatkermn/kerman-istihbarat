@@ -83,7 +83,7 @@ class KermanMainUI:
         style.map('TNotebook.Tab', background=[('selected', '#003300')])
         
         self.tool_listboxes = {}
-        kategoriler = ["WiFi", "OSINT", "Web", "Exploit", "AD", "Cloud"]
+        kategoriler = ["WiFi", "OSINT", "Web", "Exploit", "AD", "Cloud", "DarkWeb", "Blockchain", "IoT", "Forensic", "Spyware", "Scenarios"]
         
         for kat in kategoriler:
             frame = tk.Frame(self.notebook, bg='#0a0a0a')
