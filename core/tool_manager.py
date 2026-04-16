@@ -470,31 +470,68 @@ class ToolManager:
         if self.current_process:
             self.current_process.terminate()
     
-    def run_tool(self, tool_id: int, params: Dict[str, str]) -> Dict:
+       def run_tool(self, tool_id: int, params: Dict[str, str]) -> Dict:
         tool = self.get_tool(tool_id)
         if not tool:
             return {"error": f"Araç bulunamadı: {tool_id}"}
         
         cmd = tool.command
-        for key, value in params.items():
-            cmd = cmd.replace(f"{{{key}}}", str(value))
         
-        cmd = cmd.replace("{interface}", params.get("interface", "wlan0"))
-        cmd = cmd.replace("{wordlist}", params.get("wordlist", "/usr/share/wordlists/rockyou.txt"))
+        # Parametreleri yerleştir
+        for key, value in params.items():
+            if value:
+                cmd = cmd.replace(f"{{{key}}}", str(value))
+        
+        # Varsayılan değerleri temizle (yerleştirilmemiş olanları kaldır)
+        import re
+        cmd = re.sub(r'\{[^}]+\}', '', cmd)
+        
+        # Fazla boşlukları temizle
+        cmd = ' '.join(cmd.split())
+        
+        # Eğer komut boşsa hata döndür
+        if not cmd:
+            return {"error": "Komut oluşturulamadı. Lütfen gerekli alanları doldurun."}
+        
+        print(f"[DEBUG] Çalıştırılıyor: {cmd}")
         
         try:
-            self.current_process = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
-            stdout, stderr = self.current_process.communicate(timeout=300)
+            # Komutu gerçekten çalıştır
+            self.current_process = subprocess.Popen(
+                cmd, 
+                shell=True, 
+                stdout=subprocess.PIPE, 
+                stderr=subprocess.PIPE, 
+                text=True,
+                bufsize=1,
+                universal_newlines=True
+            )
+            
+            # Çıktıyı satır satır oku (gerçek zamanlı için)
+            stdout_lines = []
+            stderr_lines = []
+            
+            try:
+                stdout, stderr = self.current_process.communicate(timeout=300)
+                stdout_lines = stdout.split('\n') if stdout else []
+                stderr_lines = stderr.split('\n') if stderr else []
+            except subprocess.TimeoutExpired:
+                self.current_process.kill()
+                stdout, stderr = self.current_process.communicate()
+                return {"error": f"Zaman aşımı (300s). Kısmi çıktı:\n{stdout}"}
+            
+            return_code = self.current_process.returncode
+            
             return {
                 "tool": tool.name,
                 "command": cmd,
-                "return_code": self.current_process.returncode,
-                "stdout": stdout,
-                "stderr": stderr,
-                "success": self.current_process.returncode == 0
+                "return_code": return_code,
+                "stdout": stdout if stdout else "",
+                "stderr": stderr if stderr else "",
+                "success": return_code == 0
             }
-        except subprocess.TimeoutExpired:
-            self.current_process.kill()
-            return {"error": "Zaman aşımı (300s)"}
+            
+        except FileNotFoundError:
+            return {"error": f"Komut bulunamadı: {cmd.split()[0]}. Lütfen aracın kurulu olduğundan emin olun."}
         except Exception as e:
-            return {"error": str(e)}
+            return {"error": f"Beklenmeyen hata: {str(e)}"}
