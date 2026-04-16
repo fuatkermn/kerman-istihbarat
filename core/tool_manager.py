@@ -470,7 +470,7 @@ class ToolManager:
         if self.current_process:
             self.current_process.terminate()
     
-           def run_tool(self, tool_id: int, params: Dict[str, str]) -> Dict:
+    def run_tool(self, tool_id: int, params: Dict[str, str]) -> Dict:
         tool = self.get_tool(tool_id)
         if not tool:
             return {"error": f"Araç bulunamadı: {tool_id}"}
