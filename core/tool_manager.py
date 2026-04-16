@@ -470,7 +470,7 @@ class ToolManager:
         if self.current_process:
             self.current_process.terminate()
     
-       def run_tool(self, tool_id: int, params: Dict[str, str]) -> Dict:
+           def run_tool(self, tool_id: int, params: Dict[str, str]) -> Dict:
         tool = self.get_tool(tool_id)
         if not tool:
             return {"error": f"Araç bulunamadı: {tool_id}"}
@@ -482,7 +482,34 @@ class ToolManager:
             if value:
                 cmd = cmd.replace(f"{{{key}}}", str(value))
         
-        # Varsayılan değerleri temizle (yerleştirilmemiş olanları kaldır)
+        # Varsayılan değerleri doldur
+        defaults = {
+            "{interface}": params.get("interface", "wlan0"),
+            "{wordlist}": params.get("wordlist", "/usr/share/wordlists/rockyou.txt"),
+            "{target}": params.get("target", ""),
+            "{bssid}": params.get("bssid", ""),
+            "{domain}": params.get("domain", ""),
+            "{user}": params.get("user", ""),
+            "{password}": params.get("password", ""),
+            "{port}": params.get("port", "80"),
+            "{hash}": params.get("hash", ""),
+            "{query}": params.get("query", ""),
+            "{contract_addr}": params.get("contract_addr", ""),
+            "{file}": params.get("file", ""),
+            "{image}": params.get("image", ""),
+            "{device}": params.get("device", ""),
+            "{docker_image}": params.get("docker_image", ""),
+            "{channel}": params.get("channel", "1"),
+            "{essid}": params.get("essid", ""),
+            "{capture}": params.get("capture", "/tmp/capture.cap"),
+            "{service}": params.get("service", "ssh"),
+        }
+        
+        for placeholder, default_value in defaults.items():
+            if placeholder in cmd:
+                cmd = cmd.replace(placeholder, str(default_value))
+        
+        # Kalan tüm placeholder'ları temizle
         import re
         cmd = re.sub(r'\{[^}]+\}', '', cmd)
         
@@ -496,7 +523,6 @@ class ToolManager:
         print(f"[DEBUG] Çalıştırılıyor: {cmd}")
         
         try:
-            # Komutu gerçekten çalıştır
             self.current_process = subprocess.Popen(
                 cmd, 
                 shell=True, 
@@ -507,18 +533,12 @@ class ToolManager:
                 universal_newlines=True
             )
             
-            # Çıktıyı satır satır oku (gerçek zamanlı için)
-            stdout_lines = []
-            stderr_lines = []
-            
             try:
                 stdout, stderr = self.current_process.communicate(timeout=300)
-                stdout_lines = stdout.split('\n') if stdout else []
-                stderr_lines = stderr.split('\n') if stderr else []
             except subprocess.TimeoutExpired:
                 self.current_process.kill()
                 stdout, stderr = self.current_process.communicate()
-                return {"error": f"Zaman aşımı (300s). Kısmi çıktı:\n{stdout}"}
+                return {"error": f"Zaman aşımı (300s)"}
             
             return_code = self.current_process.returncode
             
@@ -532,6 +552,6 @@ class ToolManager:
             }
             
         except FileNotFoundError:
-            return {"error": f"Komut bulunamadı: {cmd.split()[0]}. Lütfen aracın kurulu olduğundan emin olun."}
+            return {"error": f"Komut bulunamadı: {cmd.split()[0] if cmd else 'bilinmeyen'}"}
         except Exception as e:
             return {"error": f"Beklenmeyen hata: {str(e)}"}
