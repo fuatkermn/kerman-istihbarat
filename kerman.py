@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-KERMAN İSTİHBARAT FRAMEWORK
+KERMAN İSTİHBARAT ÇERÇEVESİ
 Sürüm: 1.0.0
 """
 
@@ -10,7 +10,6 @@ from tkinter import messagebox
 import os
 import sys
 
-# Root kontrolü
 if os.geteuid() != 0:
     print("HATA: Bu uygulama root yetkileri ile çalıştırılmalıdır!")
     print("Lütfen: sudo python3 kerman.py")
@@ -37,7 +36,7 @@ class KermanLogin:
         pwd_frame = tk.Frame(self.root, bg='black')
         pwd_frame.pack(pady=20)
         
-        tk.Label(pwd_frame, text="Şifre:", fg="#00ff00", bg="black",
+        tk.Label(pwd_frame, text="Parola:", fg="#00ff00", bg="black",
                  font=("Courier", 14)).pack(side=tk.LEFT, padx=10)
         
         self.pwd_entry = tk.Entry(pwd_frame, show="•", bg="#0a0a0a", fg="#00ff00",
@@ -59,7 +58,6 @@ class KermanLogin:
     def check_password(self):
         if self.pwd_entry.get() == self.password:
             self.root.destroy()
-            # Ana uygulamayı başlat
             from core.ui import KermanMainUI
             root = tk.Tk()
             app = KermanMainUI(root)
@@ -71,7 +69,7 @@ class KermanLogin:
             root.protocol("WM_DELETE_WINDOW", on_closing)
             root.mainloop()
         else:
-            messagebox.showerror("Hata", "Yanlış şifre!")
+            messagebox.showerror("Hata", "Yanlış parola!")
             self.pwd_entry.delete(0, tk.END)
     
     def run(self):
