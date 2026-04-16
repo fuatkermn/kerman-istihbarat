@@ -34,6 +34,13 @@ class KermanMainUI:
             "domain": tk.StringVar(),
             "user": tk.StringVar(),
             "port": tk.StringVar(value="80"),
+            "query": tk.StringVar(),
+            "contract_addr": tk.StringVar(),
+            "file": tk.StringVar(),
+            "image": tk.StringVar(),
+            "device": tk.StringVar(),
+            "docker_image": tk.StringVar(),
+            "password": tk.StringVar(),
         }
         
         self.setup_ui()
@@ -57,25 +64,16 @@ class KermanMainUI:
         self.update_terminal()
     
     def create_header(self, parent):
-    header = tk.Frame(parent, bg='#0a0a0a', height=50)
-    header.pack(fill="x", padx=10, pady=5)
-    
-    title = tk.Label(header, text="⚡ KERMAN İSTİHBARAT ÇERÇEVESİ ⚡",
-                     fg="#00ff00", bg="#0a0a0a", font=("Courier", 16, "bold"))
-    title.pack(side="left", padx=10)
-    
-    # Monitör mod çerçevesi
-    monitor_frame = tk.Frame(header, bg='#0a0a0a')
-    monitor_frame.pack(side="right", padx=10)
-    
-    self.monitor_label = tk.Label(monitor_frame, text="📡 İzleme Modu: KAPALI",
-                                  fg="red", bg="#0a0a0a", font=("Courier", 10))
-    self.monitor_label.pack(side="left", padx=5)
-    
-    self.monitor_btn = tk.Button(monitor_frame, text="AÇ", command=self.toggle_monitor_mode,
-                                  bg="#003300", fg="#00ff00", font=("Courier", 9),
-                                  width=4, height=1)
-    self.monitor_btn.pack(side="left")
+        header = tk.Frame(parent, bg='#0a0a0a', height=50)
+        header.pack(fill="x", padx=10, pady=5)
+        
+        title = tk.Label(header, text="⚡ KERMAN İSTİHBARAT ÇERÇEVESİ ⚡",
+                         fg="#00ff00", bg="#0a0a0a", font=("Courier", 16, "bold"))
+        title.pack(side="left", padx=10)
+        
+        self.monitor_label = tk.Label(header, text="📡 İzleme Modu: KAPALI",
+                                      fg="red", bg="#0a0a0a", font=("Courier", 10))
+        self.monitor_label.pack(side="right", padx=10)
     
     def create_left_panel(self, parent):
         left_frame = tk.Frame(parent, bg='#0a0a0a', width=350)
@@ -247,47 +245,7 @@ class KermanMainUI:
             pass
         finally:
             self.root.after(100, self.update_terminal)
-        def toggle_monitor_mode(self):
-        """Monitör modu aç/kapat."""
-        interface = self.target_vars["interface"].get()
-        
-        if "KAPALI" in self.monitor_label.cget("text"):
-            # Monitör modu aç
-            self.terminal.insert(tk.END, f"\n[*] {interface} monitör moda alınıyor...\n")
-            self.terminal.see(tk.END)
-            
-            import subprocess
-            result = subprocess.run(f"sudo airmon-ng start {interface}", shell=True, 
-                                    capture_output=True, text=True)
-            self.terminal.insert(tk.END, result.stdout)
-            
-            if result.returncode == 0:
-                self.monitor_label.config(text="📡 İzleme Modu: AÇIK", fg="green")
-                self.monitor_btn.config(text="KAPAT", bg="#330000", fg="red")
-                # Arayüz adını güncelle
-                self.target_vars["interface"].set(interface + "mon")
-                self.terminal.insert(tk.END, f"[✓] {interface}mon hazır.\n")
-            else:
-                self.terminal.insert(tk.END, f"[!] Monitör mod başlatılamadı!\n")
-        else:
-            # Monitör modu kapat
-            self.terminal.insert(tk.END, f"\n[*] {interface} yönetim moduna alınıyor...\n")
-            self.terminal.see(tk.END)
-            
-            import subprocess
-            result = subprocess.run(f"sudo airmon-ng stop {interface}", shell=True,
-                                    capture_output=True, text=True)
-            self.terminal.insert(tk.END, result.stdout)
-            
-            self.monitor_label.config(text="📡 İzleme Modu: KAPALI", fg="red")
-            self.monitor_btn.config(text="AÇ", bg="#003300", fg="#00ff00")
-            # Arayüz adını güncelle
-            base_iface = interface.replace("mon", "")
-            self.target_vars["interface"].set(base_iface)
-            self.terminal.insert(tk.END, f"[✓] {base_iface} hazır.\n")
-        
-        self.terminal.insert(tk.END, "-" * 80 + "\n")
-        self.terminal.see(tk.END)
+    
     def stop_matrix(self):
         if hasattr(self, 'matrix'):
             self.matrix.stop()
