@@ -63,13 +63,20 @@ class KermanMainUI:
         
         self.update_terminal()
     
-    def create_header(self, parent):
+        def create_header(self, parent):
         header = tk.Frame(parent, bg='#0a0a0a', height=50)
         header.pack(fill="x", padx=10, pady=5)
         
         title = tk.Label(header, text="⚡ KERMAN İSTİHBARAT ÇERÇEVESİ ⚡",
                          fg="#00ff00", bg="#0a0a0a", font=("Courier", 16, "bold"))
         title.pack(side="left", padx=10)
+        
+        # Monitör mod butonu
+        self.monitor_btn = tk.Button(header, text="📡 İzleme Modu AÇ", 
+                                      command=self.toggle_monitor_mode,
+                                      bg="#003300", fg="#00ff00", font=("Courier", 10),
+                                      activebackground="#005500")
+        self.monitor_btn.pack(side="right", padx=10)
         
         self.monitor_label = tk.Label(header, text="📡 İzleme Modu: KAPALI",
                                       fg="red", bg="#0a0a0a", font=("Courier", 10))
