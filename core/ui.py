@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-
+import subprocess
 import tkinter as tk
 from tkinter import ttk, scrolledtext, messagebox
 import threading
@@ -245,6 +245,28 @@ class KermanMainUI:
             pass
         finally:
             self.root.after(100, self.update_terminal)
+                def toggle_monitor_mode(self):
+        """Monitör modu aç/kapat."""
+        interface = self.target_vars["interface"].get()
+        
+        if "mon" in interface:
+            # Monitör moddan çık
+            self.terminal.insert(tk.END, f"\n[*] {interface} yönetim moduna alınıyor...\n")
+            self.terminal.see(tk.END)
+            result = subprocess.run(f"sudo airmon-ng stop {interface}", shell=True, capture_output=True, text=True)
+            self.output_queue.put(result.stdout)
+            new_interface = interface.replace("mon", "")
+            self.target_vars["interface"].set(new_interface)
+            self.monitor_label.config(text="📡 İzleme Modu: KAPALI", fg="red")
+        else:
+            # Monitör moda al
+            self.terminal.insert(tk.END, f"\n[*] {interface} izleme moduna alınıyor...\n")
+            self.terminal.see(tk.END)
+            result = subprocess.run(f"sudo airmon-ng start {interface}", shell=True, capture_output=True, text=True)
+            self.output_queue.put(result.stdout)
+            new_interface = interface + "mon"
+            self.target_vars["interface"].set(new_interface)
+            self.monitor_label.config(text="📡 İzleme Modu: AÇIK", fg="green")
     
     def stop_matrix(self):
         if hasattr(self, 'matrix'):
