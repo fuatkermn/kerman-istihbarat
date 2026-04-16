@@ -5,8 +5,6 @@ import tkinter as tk
 import random
 
 class MatrixBackground:
-    """Matrix filmindeki gibi düşen yeşil karakterler efekti."""
-    
     def __init__(self, canvas, width, height):
         self.canvas = canvas
         self.width = width
@@ -18,34 +16,22 @@ class MatrixBackground:
         self.after_id = None
         
     def draw(self):
-        """Bir frame çizer."""
         self.canvas.delete("matrix")
-        
         for i in range(len(self.drops)):
-            # Rastgele karakter (Katakana veya Latin)
             if random.random() > 0.5:
-                char = chr(random.randint(0x30A0, 0x30FF))  # Katakana
+                char = chr(random.randint(0x30A0, 0x30FF))
             else:
-                char = chr(random.randint(65, 90))  # A-Z
-            
+                char = chr(random.randint(65, 90))
             x = i * self.font_size
             y = self.drops[i] * self.font_size
-            
-            # Yeşilin tonları
             green = min(255, 100 + (self.drops[i] % 155))
             color = f'#00{green:02x}00'
-            
-            self.canvas.create_text(x, y, text=char, fill=color,
-                                    font=self.font, anchor="nw", tags="matrix")
-            
-            # Karakteri aşağı kaydır
+            self.canvas.create_text(x, y, text=char, fill=color, font=self.font, anchor="nw", tags="matrix")
             if y > self.height and random.random() > 0.975:
                 self.drops[i] = 0
             self.drops[i] += 1
-        
         self.after_id = self.canvas.after(50, self.draw)
     
     def stop(self):
-        """Efekti durdurur."""
         if self.after_id:
             self.canvas.after_cancel(self.after_id)
