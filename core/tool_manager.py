@@ -469,7 +469,6 @@ class ToolManager:
     def stop_current(self):
         if self.current_process:
             self.current_process.terminate()
-    
     def run_tool(self, tool_id: int, params: Dict[str, str]) -> Dict:
         tool = self.get_tool(tool_id)
         if not tool:
@@ -509,16 +508,32 @@ class ToolManager:
             if placeholder in cmd:
                 cmd = cmd.replace(placeholder, str(default_value))
         
-        # Kalan tüm placeholder'ları temizle
         import re
         cmd = re.sub(r'\{[^}]+\}', '', cmd)
-        
-        # Fazla boşlukları temizle
         cmd = ' '.join(cmd.split())
         
-        # Eğer komut boşsa hata döndür
         if not cmd:
-            return {"error": "Komut oluşturulamadı. Lütfen gerekli alanları doldurun."}
+            return {"error": "Komut oluşturulamadı."}
+        
+        # İNTERAKTİF ARAÇLAR İÇİN YENİ PENCERE
+        interactive_tools = ["airodump-ng", "wireshark", "burpsuite", "metasploit", "msfconsole", 
+                             "bettercap", "kismet", "airgeddon", "wifite", "reaver", "mdk4"]
+        
+        if any(t in cmd.lower() for t in interactive_tools):
+            try:
+                # Yeni terminal penceresi aç
+                subprocess.Popen(['xterm', '-e', cmd])
+                return {
+                    "tool": tool.name,
+                    "command": cmd,
+                    "return_code": 0,
+                    "stdout": f"[*] {tool.name} yeni pencerede başlatıldı.\n[*] İşlem tamamlandığında pencere kapanacaktır.",
+                    "stderr": "",
+                    "success": True
+                }
+            except FileNotFoundError:
+                # xterm yoksa normal çalıştır
+                pass
         
         print(f"[DEBUG] Çalıştırılıyor: {cmd}")
         
