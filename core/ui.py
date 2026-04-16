@@ -245,7 +245,7 @@ class KermanMainUI:
             pass
         finally:
             self.root.after(100, self.update_terminal)
-                def toggle_monitor_mode(self):
+    def toggle_monitor_mode(self):
         """Monitör modu aç/kapat."""
         interface = self.target_vars["interface"].get()
         
