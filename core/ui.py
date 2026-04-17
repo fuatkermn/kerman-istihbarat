@@ -44,6 +44,7 @@ class KermanMainUI:
             "domain": tk.StringVar(),
             "user": tk.StringVar(),
             "port": tk.StringVar(value="80"),
+            "channel": tk.StringVar(value="1"),  # YENİ EKLENDİ
             "query": tk.StringVar(),
             "contract_addr": tk.StringVar(),
             "file": tk.StringVar(),
