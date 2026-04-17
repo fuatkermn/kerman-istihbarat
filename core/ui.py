@@ -21,7 +21,7 @@ class KermanMainUI:
     def __init__(self, root):
         self.root = root
         self.root.title("KERMAN İSTİHBARAT v3.0 PROFESSIONAL")
-        self.root.geometry("1600x950")
+        self.root.geometry("1920x1080")
         self.root.configure(bg='#0a0a0a')
         
         self.db = Database()
@@ -44,7 +44,7 @@ class KermanMainUI:
             "domain": tk.StringVar(),
             "user": tk.StringVar(),
             "port": tk.StringVar(value="80"),
-            "channel": tk.StringVar(value="1"),  # YENİ EKLENDİ
+            "channel": tk.StringVar(value="1"),
             "query": tk.StringVar(),
             "contract_addr": tk.StringVar(),
             "file": tk.StringVar(),
@@ -60,11 +60,11 @@ class KermanMainUI:
     def setup_ui(self):
         self.canvas = tk.Canvas(self.root, bg='black', highlightthickness=0)
         self.canvas.place(x=0, y=0, relwidth=1, relheight=1)
-        self.matrix = MatrixBackground(self.canvas, 1600, 950)
+        self.matrix = MatrixBackground(self.canvas, 1920, 1080)
         self.matrix.draw()
         
         main_container = tk.Frame(self.root, bg='#0a0a0a')
-        main_container.place(relx=0.5, rely=0.5, anchor="center", width=1550, height=920)
+        main_container.place(relx=0.5, rely=0.5, anchor="center", width=1850, height=1050)
         
         self.create_top_bar(main_container)
         self.create_left_panel(main_container)
@@ -99,7 +99,7 @@ class KermanMainUI:
         tk.Label(top_bar, text="⚙️", fg="#00ff00", bg="#111", font=("Arial", 14)).pack(side="right", padx=5)
     
     def create_left_panel(self, parent):
-        left_frame = tk.Frame(parent, bg='#111', width=300)
+        left_frame = tk.Frame(parent, bg='#111', width=350)
         left_frame.pack(side="left", fill="both", expand=False, padx=5, pady=5)
         left_frame.pack_propagate(False)
         
@@ -141,7 +141,7 @@ class KermanMainUI:
             
             araclar = self.tool_manager.get_tools_by_category(kat)
             for arac in araclar:
-                listbox.insert(tk.END, f"{arac.tool_id:3d}. {arac.name[:35]}")
+                listbox.insert(tk.END, f"{arac.tool_id:3d}. {arac.name}")
             
             listbox.bind("<Double-Button-1>", lambda e, c=kat: self.run_selected_tool(c))
         
@@ -166,7 +166,7 @@ class KermanMainUI:
                   width=3, cursor="hand2", relief="flat").pack(side="left", padx=2)
     
     def create_center_panel(self, parent):
-        center_frame = tk.Frame(parent, bg='#0a0a0a', width=450)
+        center_frame = tk.Frame(parent, bg='#0a0a0a', width=500)
         center_frame.pack(side="left", fill="both", expand=False, padx=5, pady=5)
         center_frame.pack_propagate(False)
         
@@ -183,6 +183,7 @@ class KermanMainUI:
             ("Domain", "domain"),
             ("Kullanıcı", "user"),
             ("Port", "port"),
+            ("Kanal (CH)", "channel"),
             ("Parola", "password"),
             ("Hash", "hash"),
         ]
@@ -249,12 +250,13 @@ class KermanMainUI:
                                                   relief="flat")
         self.terminal.pack(fill="both", expand=True)
         
-        self.terminal.insert(tk.END, "╔" + "═" * 100 + "╗\n")
-        self.terminal.insert(tk.END, "║" + " KERMAN İSTİHBARAT v3.0 PROFESSIONAL ".center(100) + "║\n")
-        self.terminal.insert(tk.END, "╠" + "═" * 100 + "╣\n")
-        self.terminal.insert(tk.END, "║ " + "Toplam Araç: 350+ | Kategori: 12 | Hazır".ljust(99) + "║\n")
-        self.terminal.insert(tk.END, "╚" + "═" * 100 + "╝\n\n")
-        self.terminal.insert(tk.END, "► Sistem hazır. Araç numarası girin veya çift tıklayın.\n\n")
+        self.terminal.insert(tk.END, "╔" + "═" * 120 + "╗\n")
+        self.terminal.insert(tk.END, "║" + " KERMAN İSTİHBARAT v3.0 PROFESSIONAL ".center(120) + "║\n")
+        self.terminal.insert(tk.END, "╠" + "═" * 120 + "╣\n")
+        self.terminal.insert(tk.END, "║ " + "Toplam Araç: 350+ | Kategori: 12 | Tüm Araçlar Ayrı Pencerede Açılır".ljust(119) + "║\n")
+        self.terminal.insert(tk.END, "╚" + "═" * 120 + "╝\n\n")
+        self.terminal.insert(tk.END, "► Sistem hazır. Araç numarası girin veya çift tıklayın.\n")
+        self.terminal.insert(tk.END, "► Tüm araçlar ayrı xterm penceresinde açılacaktır.\n\n")
         self.terminal.see(tk.END)
     
     def create_status_bar(self, parent):
@@ -370,7 +372,8 @@ Son İşlem: {ops[0]['tool_name'][:30] if ops else 'Yok'}
         
         self.terminal.insert(tk.END, f"\n[{datetime.now().strftime('%H:%M:%S')}] {tool.name}\n")
         self.terminal.insert(tk.END, f"[CMD] {tool.command}\n")
-        self.terminal.insert(tk.END, "─" * 100 + "\n")
+        self.terminal.insert(tk.END, "─" * 120 + "\n")
+        self.terminal.insert(tk.END, "[*] Araç ayrı pencerede açılıyor...\n")
         self.terminal.see(tk.END)
         
         self.status_label.config(text=f"● Çalışıyor: {tool.name}")
