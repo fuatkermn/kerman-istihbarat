@@ -515,28 +515,37 @@ class ToolManager:
         if not cmd:
             return {"error": "Komut oluşturulamadı."}
         
-        # İNTERAKTİF ARAÇLAR İÇİN YENİ PENCERE
-        interactive_tools = ["airodump-ng", "wireshark", "burpsuite", "metasploit", "msfconsole", 
-                             "bettercap", "kismet", "airgeddon", "wifite", "reaver", "mdk4"]
+        print(f"[DEBUG] Çalıştırılıyor: {cmd}")
         
-        if any(t in cmd.lower() for t in interactive_tools):
+        # TÜM ARAÇLARI AYRI PENCEREDE AÇ
+        try:
+            # xterm ile ayrı pencerede aç
+            subprocess.Popen(['xterm', '-T', f'KERMAN - {tool.name}', '-e', cmd])
+            return {
+                "tool": tool.name,
+                "command": cmd,
+                "return_code": 0,
+                "stdout": f"[*] {tool.name} ayrı pencerede başlatıldı.\n[*] Pencereyi kapatmak için işlemi sonlandırın veya 'exit' yazın.",
+                "stderr": "",
+                "success": True
+            }
+        except FileNotFoundError:
+            # xterm yoksa gnome-terminal dene
             try:
-                # Yeni terminal penceresi aç
-                subprocess.Popen(['xterm', '-e', cmd])
+                subprocess.Popen(['gnome-terminal', '--', 'bash', '-c', f'{cmd}; exec bash'])
                 return {
                     "tool": tool.name,
                     "command": cmd,
                     "return_code": 0,
-                    "stdout": f"[*] {tool.name} yeni pencerede başlatıldı.\n[*] İşlem tamamlandığında pencere kapanacaktır.",
+                    "stdout": f"[*] {tool.name} ayrı pencerede başlatıldı.",
                     "stderr": "",
                     "success": True
                 }
-            except FileNotFoundError:
-                # xterm yoksa normal çalıştır
+            except:
+                # Hiçbiri yoksa normal çalıştır
                 pass
         
-        print(f"[DEBUG] Çalıştırılıyor: {cmd}")
-        
+        # Eğer ayrı pencere açılamazsa normal yöntemle çalıştır
         try:
             self.current_process = subprocess.Popen(
                 cmd, 
