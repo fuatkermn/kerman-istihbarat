@@ -15,6 +15,7 @@ from core.tool_manager import ToolManager
 from core.report_generator import ReportGenerator
 from core.ai_module import AIModule
 from core.voice_module import VoiceModule
+from core.helpers import ToolInstaller
 
 class KermanMainUI:
     def __init__(self, root):
@@ -56,29 +57,18 @@ class KermanMainUI:
         self.setup_ui()
         
     def setup_ui(self):
-        # Matrix Arkaplan
         self.canvas = tk.Canvas(self.root, bg='black', highlightthickness=0)
         self.canvas.place(x=0, y=0, relwidth=1, relheight=1)
         self.matrix = MatrixBackground(self.canvas, 1600, 950)
         self.matrix.draw()
         
-        # Ana Konteyner
         main_container = tk.Frame(self.root, bg='#0a0a0a')
         main_container.place(relx=0.5, rely=0.5, anchor="center", width=1550, height=920)
         
-        # Üst Bar
         self.create_top_bar(main_container)
-        
-        # Sol Panel - Kategoriler ve Araç Listesi
         self.create_left_panel(main_container)
-        
-        # Orta Panel - Hedef Bilgileri ve Butonlar
         self.create_center_panel(main_container)
-        
-        # Sağ Panel - Terminal
         self.create_right_panel(main_container)
-        
-        # Alt Durum Çubuğu
         self.create_status_bar(main_container)
         
         self.update_terminal()
@@ -87,12 +77,10 @@ class KermanMainUI:
         top_bar = tk.Frame(parent, bg='#111', height=45)
         top_bar.pack(fill="x", padx=5, pady=5)
         
-        # Logo ve Başlık
         title = tk.Label(top_bar, text="⚡ KERMAN İSTİHBARAT v3.0 ⚡", 
                          fg="#00ff00", bg="#111", font=("Courier", 16, "bold"))
         title.pack(side="left", padx=15)
         
-        # Monitör Mod Paneli
         monitor_frame = tk.Frame(top_bar, bg='#111')
         monitor_frame.pack(side="right", padx=15)
         
@@ -105,7 +93,6 @@ class KermanMainUI:
                                       width=6, cursor="hand2")
         self.monitor_btn.pack(side="left")
         
-        # Hızlı Erişim İkonları
         tk.Label(top_bar, text="🔍", fg="#00ff00", bg="#111", font=("Arial", 14)).pack(side="right", padx=5)
         tk.Label(top_bar, text="📊", fg="#00ff00", bg="#111", font=("Arial", 14)).pack(side="right", padx=5)
         tk.Label(top_bar, text="⚙️", fg="#00ff00", bg="#111", font=("Arial", 14)).pack(side="right", padx=5)
@@ -115,11 +102,9 @@ class KermanMainUI:
         left_frame.pack(side="left", fill="both", expand=False, padx=5, pady=5)
         left_frame.pack_propagate(False)
         
-        # Kategori Başlığı
         tk.Label(left_frame, text="📁 KATEGORİLER", fg="#00ff00", bg="#111", 
                  font=("Courier", 11, "bold")).pack(pady=5)
         
-        # Notebook (Sekmeler)
         self.notebook = ttk.Notebook(left_frame)
         self.notebook.pack(fill="both", expand=True, padx=3, pady=3)
         
@@ -159,7 +144,6 @@ class KermanMainUI:
             
             listbox.bind("<Double-Button-1>", lambda e, c=kat: self.run_selected_tool(c))
         
-        # Araç Numarası Girişi
         cmd_frame = tk.Frame(left_frame, bg='#111')
         cmd_frame.pack(fill="x", padx=5, pady=8)
         
@@ -185,7 +169,6 @@ class KermanMainUI:
         center_frame.pack(side="left", fill="both", expand=False, padx=5, pady=5)
         center_frame.pack_propagate(False)
         
-        # Hedef Bilgileri Kartı
         target_card = tk.Frame(center_frame, bg='#1a0000', relief="solid", bd=1)
         target_card.pack(fill="x", padx=5, pady=5)
         
@@ -213,7 +196,6 @@ class KermanMainUI:
                             font=("Courier", 9), relief="flat")
             entry.pack(side="left", fill="x", expand=True)
         
-        # Wordlist Seçimi
         wl_frame = tk.Frame(target_card, bg='#1a0000')
         wl_frame.pack(fill="x", padx=10, pady=5)
         tk.Label(wl_frame, text="Wordlist:", fg="red", bg="#1a0000", 
@@ -223,7 +205,6 @@ class KermanMainUI:
         tk.Button(wl_frame, text="📁", command=self.browse_wordlist,
                   bg="#330000", fg="red", width=3, cursor="hand2", relief="flat").pack(side="left", padx=2)
         
-        # Aksiyon Butonları
         btn_frame = tk.Frame(center_frame, bg='#0a0a0a')
         btn_frame.pack(fill="x", padx=5, pady=10)
         
@@ -232,6 +213,7 @@ class KermanMainUI:
             ("🤖 AI SOR", self.ask_ai, "#330033", "#ff00ff"),
             ("🎤 SESLİ", self.start_voice, "#003333", "#00ffff"),
             ("💾 KAYDET", self.save_target, "#333300", "#ffff00"),
+            ("🔧 KONTROL", self.check_tools, "#333333", "#ffffff"),
         ]
         
         for text, cmd, bg, fg in buttons:
@@ -239,7 +221,6 @@ class KermanMainUI:
                       font=("Courier", 9, "bold"), cursor="hand2", relief="flat",
                       height=2).pack(side="left", fill="x", expand=True, padx=2)
         
-        # İstatistik Paneli
         stats_frame = tk.Frame(center_frame, bg='#111')
         stats_frame.pack(fill="x", padx=5, pady=5)
         
@@ -255,7 +236,6 @@ class KermanMainUI:
         right_frame = tk.Frame(parent, bg='#0a0a0a')
         right_frame.pack(side="right", fill="both", expand=True, padx=5, pady=5)
         
-        # Terminal Başlığı
         term_header = tk.Frame(right_frame, bg='#111', height=30)
         term_header.pack(fill="x")
         tk.Label(term_header, text="📟 TERMİNAL ÇIKTISI", fg="#00ff00", bg="#111", 
@@ -263,13 +243,11 @@ class KermanMainUI:
         tk.Button(term_header, text="🧹", command=self.clear_terminal,
                   bg="#222", fg="#00ff00", width=3, cursor="hand2", relief="flat").pack(side="right", padx=5)
         
-        # Terminal
         self.terminal = scrolledtext.ScrolledText(right_frame, bg='#0a0a0a', fg='#00ff00',
                                                   font=("Courier", 9), insertbackground='#00ff00',
                                                   relief="flat")
         self.terminal.pack(fill="both", expand=True)
         
-        # Hoşgeldin Mesajı
         self.terminal.insert(tk.END, "╔" + "═" * 100 + "╗\n")
         self.terminal.insert(tk.END, "║" + " KERMAN İSTİHBARAT v3.0 PROFESSIONAL ".center(100) + "║\n")
         self.terminal.insert(tk.END, "╠" + "═" * 100 + "╣\n")
@@ -378,6 +356,15 @@ Son İşlem: {ops[0]['tool_name'][:30] if ops else 'Yok'}
             messagebox.showerror("Hata", f"Araç bulunamadı: {tool_id}")
             return
         
+        cmd_name = tool.command.split()[0] if tool.command else ""
+        if not ToolInstaller.check_tool(cmd_name):
+            if messagebox.askyesno("Eksik Araç", f"'{cmd_name}' kurulu değil. Şimdi kurulsun mu?"):
+                self.terminal.insert(tk.END, f"\n[*] {cmd_name} kuruluyor...\n")
+                success, msg = ToolInstaller.install_tool(cmd_name)
+                self.terminal.insert(tk.END, f"    {'✓' if success else '✗'} {msg}\n")
+                if not success:
+                    return
+        
         params = {k: v.get() for k, v in self.target_vars.items()}
         
         self.terminal.insert(tk.END, f"\n[{datetime.now().strftime('%H:%M:%S')}] {tool.name}\n")
@@ -393,14 +380,31 @@ Son İşlem: {ops[0]['tool_name'][:30] if ops else 'Yok'}
     
     def _run_tool_thread(self, tool_id, params):
         result = self.tool_manager.run_tool(tool_id, params)
+        
         if "error" in result:
             self.output_queue.put(f"\n[HATA] {result['error']}\n")
+            if self.current_op_id:
+                self.db.update_operation(self.current_op_id, "FAILED", result['error'])
         else:
-            self.output_queue.put(result.get("stdout", ""))
-            if result.get("stderr"):
-                self.output_queue.put(f"\n[STDERR]\n{result['stderr']}\n")
-            self.output_queue.put(f"\n[✓] İşlem tamamlandı (Kod: {result['return_code']})\n")
-        self.output_queue.put("\n► Hazır.\n")
+            stdout = result.get("stdout", "")
+            stderr = result.get("stderr", "")
+            
+            if stdout:
+                self.output_queue.put(stdout)
+            if stderr:
+                self.output_queue.put(f"\n[STDERR]\n{stderr}\n")
+            
+            return_code = result.get("return_code", -1)
+            if return_code == 0:
+                self.output_queue.put(f"\n[✓] İşlem başarıyla tamamlandı.\n")
+            else:
+                self.output_queue.put(f"\n[!] İşlem hata koduyla tamamlandı: {return_code}\n")
+            
+            if self.current_op_id:
+                status = "SUCCESS" if return_code == 0 else "FAILED"
+                self.db.update_operation(self.current_op_id, status, stdout[:500] if stdout else "")
+        
+        self.output_queue.put("\n► Hazır. Yeni komut bekleniyor...\n")
         self.root.after(100, lambda: self.status_label.config(text="● Hazır"))
         self.root.after(100, self.update_stats)
     
@@ -452,11 +456,36 @@ Son İşlem: {ops[0]['tool_name'][:30] if ops else 'Yok'}
     
     def _process_voice_command(self, text: str):
         self.terminal.insert(tk.END, f"[✓] Algılanan: {text}\n")
-        # Basit komut işleme
         if "tarama" in text.lower():
             self.tool_entry.delete(0, tk.END)
             self.tool_entry.insert(0, "26")
             self.run_selected_tool()
+    
+    def check_tools(self):
+        self.terminal.insert(tk.END, "\n[*] Araçlar kontrol ediliyor...\n")
+        self.terminal.see(tk.END)
+        
+        def check_thread():
+            installed = []
+            missing = []
+            
+            for tool_id, tool in self.tool_manager.tools.items():
+                cmd_name = tool.command.split()[0] if tool.command else ""
+                if ToolInstaller.check_tool(cmd_name):
+                    installed.append(tool.name)
+                else:
+                    missing.append((tool.name, cmd_name))
+            
+            self.output_queue.put(f"\n[✓] Kurulu araçlar: {len(installed)}\n")
+            self.output_queue.put(f"[!] Eksik araçlar: {len(missing)}\n\n")
+            
+            if missing:
+                self.output_queue.put("Eksik araçlar (ilk 30):\n")
+                for name, cmd in missing[:30]:
+                    self.output_queue.put(f"  - {name} ({cmd})\n")
+                self.output_queue.put("\n[*] Kurmak için araç numarasını girip çalıştırdığınızda otomatik kurulum önerilecektir.\n")
+            
+        threading.Thread(target=check_thread, daemon=True).start()
     
     def update_terminal(self):
         try:
